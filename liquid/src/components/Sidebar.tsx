@@ -1,75 +1,202 @@
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Menu, User, Home, Settings, LogOut } from "lucide-react";
-import { createContext, useContext, useState } from "react";
+import {
+  ChevronDown,
+  Menu,
+  Home,
+  User,
+  Settings,
+  LogOut,
+} from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { metaMask } from "wagmi/connectors";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router";
 
-interface SidebarContextType {
-  selected: string;
-  setSelected: (value: string) => void;
+interface SidebarProps {
+  className?: string;
 }
 
-const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
+export function Sidebar() {
+  const { address, isConnected } = useAccount();
+  const { connect } = useConnect();
+  const { disconnect } = useDisconnect();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const navigate = useNavigate();
 
-export function useSidebar() {
-  const context = useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
-  }
-  return context;
-}
-
-export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [selected, setSelected] = useState<string>("dashboard");
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
-    <SidebarContext.Provider value={{ selected, setSelected }}>
-      {children}
-    </SidebarContext.Provider>
-  );
-}
-
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function Sidebar({ className }: SidebarProps) {
-  const { selected, setSelected } = useSidebar();
-
-  return (
-    <div className={cn("h-screen bg-gray-100", className)}>
-      <div className="space-y-4 py-4 h-full flex flex-col justify-between">
-        <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold">Navigation</h2>
-          <div className="space-y-1">
+    <div
+      className={cn(
+        "relative h-screen bg-gray-100 transition-all duration-300 ease-in-out border-r",
+        isSidebarOpen ? "w-64" : "w-16"
+      )}
+    >
+      <div className="flex flex-col justify-between h-full py-4 overflow-hidden">
+        <div className="px-3 space-y-4">
+          {/* Toggle Button */}
+          <div className="flex justify-end mb-2">
             <Button
-              variant={selected === "dashboard" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setSelected("dashboard")}
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "bg-gray-100 hover:bg-gray-200 transition-all duration-300 ease-in-out",
+                !isSidebarOpen && "rotate-180"
+              )}
+              onClick={toggleSidebar}
             >
-              <Home className="mr-2 h-4 w-4" />
-              Dashboard
-            </Button>
-            <Button
-              variant={selected === "profile" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setSelected("profile")}
-            >
-              <User className="mr-2 h-4 w-4" />
-              Profile
-            </Button>
-            <Button
-              variant={selected === "settings" ? "secondary" : "ghost"}
-              className="w-full justify-start"
-              onClick={() => setSelected("settings")}
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
+              <ChevronDown className="h-4 w-4 transform -rotate-90" />
             </Button>
           </div>
-        </div>
-        <div className="px-3 py-2 mt-auto">
-          <Button variant="ghost" className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-100">
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
+
+          <div
+            className={cn(
+              "text-lg font-semibold px-4 transition-opacity duration-300",
+              !isSidebarOpen ? "opacity-0" : "opacity-100"
+            )}
+          >
+            Liquid
+          </div>
+
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-2 transition-all duration-300 hover:bg-gray-200",
+              !isSidebarOpen ? "justify-center px-2" : "justify-start"
+            )}
+            onClick={() => navigate("/Dashboard")}
+          >
+            <Home className="h-5 w-5 flex-shrink-0" />
+            <span
+              className={cn(
+                "whitespace-nowrap transition-all duration-300",
+                !isSidebarOpen ? "w-0 opacity-0" : "w-auto opacity-100"
+              )}
+            >
+              Dashboard
+            </span>
           </Button>
+
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-2 transition-all duration-300 hover:bg-gray-200",
+              !isSidebarOpen ? "justify-center px-2" : "justify-start"
+            )}
+          >
+            <User className="h-5 w-5 flex-shrink-0" />
+            <span
+              className={cn(
+                "whitespace-nowrap transition-all duration-300",
+                !isSidebarOpen ? "w-0 opacity-0" : "w-auto opacity-100"
+              )}
+            >
+              Profile
+            </span>
+          </Button>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-2 transition-all duration-300 hover:bg-gray-200",
+              !isSidebarOpen ? "justify-center px-2" : "justify-start"
+            )}
+            onClick={() => navigate("/Analytics")}
+          >
+            <User className="h-5 w-5 flex-shrink-0" />
+            <span
+              className={cn(
+                "whitespace-nowrap transition-all duration-300",
+                !isSidebarOpen ? "w-0 opacity-0" : "w-auto opacity-100"
+              )}
+            >
+              Analytics
+            </span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-2 transition-all duration-300 hover:bg-gray-200",
+              !isSidebarOpen ? "justify-center px-2" : "justify-start"
+            )}
+          >
+            <Settings className="h-5 w-5 flex-shrink-0" />
+            <span
+              className={cn(
+                "whitespace-nowrap transition-all duration-300",
+                !isSidebarOpen ? "w-0 opacity-0" : "w-auto opacity-100"
+              )}
+            >
+              Settings
+            </span>
+          </Button>
+        </div>
+
+        {/* Footer Section */}
+        <div className="px-3 mt-auto">
+          <Separator className="my-4" />
+
+          {isConnected ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full flex items-center gap-3 px-4 py-2 transition-all duration-300 hover:bg-gray-200",
+                    !isSidebarOpen ? "justify-center px-2" : "justify-start"
+                  )}
+                >
+                  <LogOut className="h-5 w-5 text-red-500 flex-shrink-0" />
+                  <span
+                    className={cn(
+                      "whitespace-nowrap transition-all duration-300",
+                      !isSidebarOpen ? "w-0 opacity-0" : "w-auto opacity-100"
+                    )}
+                  >
+                    Logout
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                <div className="p-2 text-sm text-gray-700">
+                  Connected:{" "}
+                  <span className="font-medium">
+                    {address?.slice(0, 6)}...{address?.slice(-4)}
+                  </span>
+                </div>
+                <DropdownMenuItem
+                  className="text-red-500 cursor-pointer"
+                  onClick={() => disconnect()}
+                >
+                  Disconnect
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-2 transition-all duration-300",
+                !isSidebarOpen ? "justify-center px-2" : "justify-start"
+              )}
+              onClick={() => connect({ connector: metaMask() })}
+            >
+              <LogOut className="h-5 w-5 flex-shrink-0" />
+              <span
+                className={cn(
+                  "whitespace-nowrap transition-all duration-300",
+                  !isSidebarOpen ? "w-0 opacity-0" : "w-auto opacity-100"
+                )}
+              >
+                Connect Wallet
+              </span>
+            </Button>
+          )}
         </div>
       </div>
     </div>

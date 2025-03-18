@@ -1,13 +1,15 @@
 import { Routes, Route } from "react-router";
 import HomeBeforeLogin from "./pages/HomeBeforeLogin";
-import AfterLogin from "./pages/AfterLogin";
+import Dashboard from "@/pages/Dashboard";
+import Analytics from "./pages/Analytics";
 
 function App() {
   return (
     
     <Routes>
       <Route path="/" element={<HomeBeforeLogin />} />
-      <Route path="/AfterLogin" element={<AfterLogin />} />
+      <Route path="/Dashboard" element={<Dashboard />} />
+      <Route path="/Analytics" element={<Analytics />} />
     </Routes>
   );
 }
